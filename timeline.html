@@ -23,11 +23,11 @@
         <a class="back-link" href="index.html"><span aria-hidden="true">←</span> 홈으로 돌아가기</a>
       </section>
 
-      <section class="memories" aria-label="우리의 추억 27가지">
+      <section class="memories" aria-label="우리의 추억 27가지와 편지">
         <div class="timeline-head">
           <p class="timeline-label">ONE YEAR, SO MANY MEMORIES</p>
           <div class="timeline-controls">
-            <span class="timeline-count" aria-live="polite"><span data-current>01</span> / 27</span>
+            <span class="timeline-count" aria-live="polite"><span data-current>01</span> / <span data-total>28</span></span>
             <button class="timeline-button" type="button" data-step="-1" aria-label="이전 추억" disabled>←</button>
             <button class="timeline-button" type="button" data-step="1" aria-label="다음 추억">→</button>
           </div>
@@ -357,6 +357,12 @@
               </div>
             </article>
           </li>
+          <li class="timeline-item timeline-item-letter">
+            <article class="memory-card letter-card" aria-label="2026년 11월 15일, 편지가 들어갈 자리">
+              <time class="memory-date" datetime="2026-11-15">2026.11.15</time>
+              <div class="letter-paper"></div>
+            </article>
+          </li>
         </ol>
         <article class="timeline-ending">
           <span class="ending-heart" aria-hidden="true">♥</span>
@@ -380,7 +386,10 @@
       const current = document.querySelector("[data-current]");
       const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
+      document.querySelector("[data-total]").textContent = String(items.length).padStart(2, "0");
+
       const stepWidth = () => items[0].offsetWidth + parseFloat(getComputedStyle(track).columnGap);
+      const scrollBehavior = () => (reduceMotion.matches ? "auto" : "smooth");
 
       function update() {
         const index = Math.min(items.length - 1, Math.round(track.scrollLeft / stepWidth()));
@@ -392,12 +401,58 @@
 
       buttons.forEach((button) => {
         button.addEventListener("click", () => {
-          track.scrollBy({
-            left: Number(button.dataset.step) * stepWidth(),
-            behavior: reduceMotion.matches ? "auto" : "smooth",
-          });
+          track.scrollBy({ left: Number(button.dataset.step) * stepWidth(), behavior: scrollBehavior() });
         });
       });
+
+      // Mouse drag to scroll; touch and trackpads already scroll natively.
+      let drag = null;
+      let suppressClick = false;
+
+      track.addEventListener("pointerdown", (event) => {
+        if (event.pointerType !== "mouse" || event.button !== 0) return;
+        drag = { x: event.clientX, left: track.scrollLeft, moved: false };
+      });
+
+      track.addEventListener("pointermove", (event) => {
+        if (!drag) return;
+        const dx = event.clientX - drag.x;
+        if (!drag.moved && Math.abs(dx) < 5) return;
+        if (!drag.moved) {
+          drag.moved = true;
+          track.setPointerCapture(event.pointerId);
+          track.classList.add("is-dragging");
+        }
+        track.scrollLeft = drag.left - dx;
+      });
+
+      function endDrag() {
+        if (!drag) return;
+        if (drag.moved) {
+          suppressClick = true;
+          setTimeout(() => (suppressClick = false));
+          // Settle on the nearest card, leaning toward the drag direction.
+          const step = stepWidth();
+          const moved = track.scrollLeft - drag.left;
+          const position = track.scrollLeft / step;
+          const target = Math.abs(moved) > step * 0.15
+            ? (moved > 0 ? Math.ceil(position) : Math.floor(position))
+            : Math.round(position);
+          track.scrollTo({ left: target * step, behavior: scrollBehavior() });
+          setTimeout(() => track.classList.remove("is-dragging"), reduceMotion.matches ? 0 : 450);
+        }
+        drag = null;
+      }
+
+      track.addEventListener("pointerup", endDrag);
+      track.addEventListener("pointercancel", endDrag);
+      track.addEventListener("click", (event) => {
+        if (suppressClick) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }, true);
+      track.addEventListener("dragstart", (event) => event.preventDefault());
 
       let frame = 0;
       track.addEventListener("scroll", () => {

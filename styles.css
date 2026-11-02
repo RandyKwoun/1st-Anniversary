@@ -78,6 +78,12 @@ a:focus-visible {
   transition: color 180ms ease;
 }
 
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
 .header-link:hover,
 .back-link:hover {
   color: var(--accent-dark);
@@ -192,6 +198,28 @@ a:focus-visible {
   transform: translateY(-2px);
   border-color: var(--accent-dark);
   background: var(--accent-dark);
+}
+
+.secondary-link {
+  display: inline-flex;
+  min-width: 228px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  margin-top: 12px;
+  padding: 15px 18px 15px 22px;
+  border: 1px solid var(--line);
+  background: #fffefa;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 12px;
+  transition: border-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.secondary-link:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  color: var(--accent-dark);
 }
 
 .link-arrow {
@@ -412,6 +440,18 @@ a:focus-visible {
   list-style: none;
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .timeline {
+    cursor: grab;
+  }
+}
+
+.timeline.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+  user-select: none;
+}
+
 .timeline-item {
   position: relative;
   display: flex;
@@ -456,6 +496,26 @@ a:focus-visible {
   border: 1px solid #eee9e0;
   background: #fffefa;
   box-shadow: 0 9px 35px #39312308;
+}
+
+.timeline-item-letter::before {
+  background: #d3b778;
+  box-shadow: 0 0 0 1px #e3cf9f;
+}
+
+.letter-card {
+  display: flex;
+  flex-direction: column;
+  padding: 24px 21px 21px;
+}
+
+/* Blank ruled paper, waiting for the letter. */
+.letter-paper {
+  flex: 1;
+  min-height: 280px;
+  margin-top: 16px;
+  border-top: 1px solid #eee9e0;
+  background: repeating-linear-gradient(to bottom, transparent 0 31px, #f0ebe2 31px 32px);
 }
 
 .memory-photo {
@@ -544,6 +604,29 @@ a:focus-visible {
   margin-top: 23px;
 }
 
+.voicemail-page {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+.voicemail-page main {
+  flex: 1;
+}
+
+.voicemail-empty {
+  display: flex;
+  width: min(100% - 48px, 560px);
+  min-height: 220px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 96px;
+  border: 1px dashed #e0d8cb;
+  color: #aaa399;
+  font-family: var(--serif);
+  font-size: 13px;
+}
+
 .timeline-footer {
   width: min(100% - 88px, 1320px);
   min-height: 72px;
@@ -562,6 +645,10 @@ a:focus-visible {
 
   .site-header {
     height: 72px;
+  }
+
+  .header-nav {
+    gap: 16px;
   }
 
   .home-hero {
