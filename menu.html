@@ -28,6 +28,21 @@
           <button class="roulette-spin" type="button" data-spin>돌려!</button>
         </div>
         <p class="roulette-hint">가운데 버튼을 눌러봐</p>
+
+        <details class="menu-editor">
+          <summary>메뉴 넣고 빼기 <span class="menu-count" data-count></span></summary>
+          <ul class="menu-items" data-items></ul>
+          <form class="menu-add" data-add-form>
+            <input name="label" maxlength="10" placeholder="메뉴 (예: 떡볶이)" aria-label="룰렛에 적을 메뉴 이름" required>
+            <input name="text" maxlength="40" placeholder="한마디 (안 적어도 돼)" aria-label="결과에 보여줄 한마디">
+            <button type="submit">넣기</button>
+          </form>
+          <p class="menu-editor-message" aria-live="polite" data-message></p>
+          <div class="menu-editor-foot">
+            <p>바꾼 메뉴는 지금 쓰는 폰(브라우저)에 저장돼.</p>
+            <button type="button" data-reset>처음 메뉴로 되돌리기</button>
+          </div>
+        </details>
       </section>
     </main>
 
@@ -38,8 +53,7 @@
     <div class="reveal" role="dialog" aria-modal="true" aria-labelledby="reveal-title" hidden data-reveal>
       <div class="reveal-confetti" aria-hidden="true" data-confetti></div>
       <div class="reveal-card">
-        <p class="reveal-kicker" id="reveal-title">따단!</p>
-        <p class="reveal-menu" data-result></p>
+        <p class="reveal-menu" id="reveal-title" data-result></p>
         <div class="reveal-actions">
           <button class="primary-link" type="button" data-again>
             <span>한 번 더 돌리기</span>
@@ -54,7 +68,7 @@
     </div>
 
     <script>
-      const menus = [
+      const defaultMenus = [
         { label: "화덕피자", text: "Ocean View에서 화덕피자!" },
         { label: "마라탕", text: "마라탕 배달 시켜먹기~" },
         { label: "불고기", text: "K-Central가서 불고기 어때?" },
@@ -64,32 +78,133 @@
         { label: "Soba", text: "찾아보니 Noodles의 Soba Shrimp가 그렇게 맛있대!" },
         { label: "태국음식", text: "태국음식은 어떤가용 울 공쥬님? ㅎㅎ" },
       ];
+      const STORAGE_KEY = "menu-roulette";
+      const MIN_MENUS = 2;
+      const MAX_MENUS = 12;
 
       const wheel = document.querySelector("[data-wheel]");
       const spinButton = document.querySelector("[data-spin]");
       const reveal = document.querySelector("[data-reveal]");
       const result = document.querySelector("[data-result]");
       const confetti = document.querySelector("[data-confetti]");
+      const itemList = document.querySelector("[data-items]");
+      const addForm = document.querySelector("[data-add-form]");
+      const count = document.querySelector("[data-count]");
+      const message = document.querySelector("[data-message]");
       const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+      const SVG_NS = "http://www.w3.org/2000/svg";
+
+      function loadMenus() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          if (Array.isArray(saved) && saved.length >= MIN_MENUS) return saved;
+        } catch {}
+        return defaultMenus.map((menu) => ({ ...menu }));
+      }
+
+      function saveMenus() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(menus));
+        } catch {}
+      }
+
+      let menus = loadMenus();
+      let rotation = 0;
+      let last = -1;
+      let spinning = false;
 
       // Draw the wheel: slice i is centred at i * slice degrees, clockwise from the top.
-      const slice = 360 / menus.length;
+      // Built with DOM nodes (not innerHTML) because menu names can be typed in by hand.
       const radius = 150;
       const point = (deg, r) => {
         const rad = (deg - 90) * (Math.PI / 180);
         return `${(r * Math.cos(rad)).toFixed(2)} ${(r * Math.sin(rad)).toFixed(2)}`;
       };
-      wheel.innerHTML = menus.map((menu, i) => {
-        const start = i * slice - slice / 2;
-        const end = start + slice;
-        return `
-          <path class="slice slice-${i % 2}" d="M0 0 L${point(start, radius)} A${radius} ${radius} 0 0 1 ${point(end, radius)} Z"/>
-          <text class="slice-label" transform="rotate(${i * slice}) translate(0 -104)">${menu.label}</text>`;
-      }).join("") + `<circle class="wheel-rim" r="${radius}"/>`;
 
-      let rotation = 0;
-      let last = -1;
-      let spinning = false;
+      function drawWheel() {
+        const slice = 360 / menus.length;
+        wheel.replaceChildren();
+        menus.forEach((menu, i) => {
+          const start = i * slice - slice / 2;
+          const end = start + slice;
+          // With an odd count the last slice would match the first, so give it a third colour.
+          const tone = menus.length % 2 === 1 && i === menus.length - 1 ? 2 : i % 2;
+
+          const path = document.createElementNS(SVG_NS, "path");
+          path.setAttribute("class", `slice slice-${tone}`);
+          path.setAttribute("d", `M0 0 L${point(start, radius)} A${radius} ${radius} 0 0 1 ${point(end, radius)} Z`);
+
+          const label = document.createElementNS(SVG_NS, "text");
+          label.setAttribute("class", "slice-label");
+          label.setAttribute("transform", `rotate(${i * slice}) translate(0 -104)`);
+          label.style.fontSize = `${menus.length > 8 ? 12 : 14}px`;
+          label.textContent = menu.label.length > 6 ? `${menu.label.slice(0, 5)}…` : menu.label;
+
+          wheel.append(path, label);
+        });
+        const rim = document.createElementNS(SVG_NS, "circle");
+        rim.setAttribute("class", "wheel-rim");
+        rim.setAttribute("r", radius);
+        wheel.append(rim);
+      }
+
+      function renderEditor() {
+        count.textContent = `${menus.length} / ${MAX_MENUS}`;
+        itemList.replaceChildren(...menus.map((menu, i) => {
+          const item = document.createElement("li");
+          const copy = document.createElement("div");
+          const name = document.createElement("strong");
+          const text = document.createElement("span");
+          const remove = document.createElement("button");
+          name.textContent = menu.label;
+          text.textContent = menu.text;
+          remove.type = "button";
+          remove.textContent = "×";
+          remove.setAttribute("aria-label", `${menu.label} 빼기`);
+          remove.disabled = menus.length <= MIN_MENUS;
+          remove.addEventListener("click", () => removeMenu(i));
+          copy.append(name, text);
+          item.append(copy, remove);
+          return item;
+        }));
+        addForm.querySelector("button").disabled = menus.length >= MAX_MENUS;
+      }
+
+      function update(note) {
+        last = -1;
+        saveMenus();
+        drawWheel();
+        renderEditor();
+        message.textContent = note;
+      }
+
+      function removeMenu(i) {
+        if (spinning || menus.length <= MIN_MENUS) return;
+        const [removed] = menus.splice(i, 1);
+        update(`'${removed.label}' 뺐어!`);
+      }
+
+      addForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (spinning) return;
+        if (menus.length >= MAX_MENUS) {
+          message.textContent = `메뉴는 ${MAX_MENUS}개까지 넣을 수 있어.`;
+          return;
+        }
+        const label = addForm.label.value.trim();
+        const text = addForm.text.value.trim() || `오늘은 ${label}!`;
+        if (!label) return;
+        menus.push({ label, text });
+        addForm.reset();
+        update(`'${label}' 넣었어!`);
+        addForm.label.focus();
+      });
+
+      document.querySelector("[data-reset]").addEventListener("click", () => {
+        if (spinning) return;
+        menus = defaultMenus.map((menu) => ({ ...menu }));
+        update("처음 메뉴로 되돌렸어.");
+      });
 
       function spin() {
         if (spinning) return;
@@ -102,19 +217,20 @@
         do pick = Math.floor(Math.random() * menus.length);
         while (pick === last && menus.length > 1);
         last = pick;
+        const chosen = menus[pick];
 
+        const slice = 360 / menus.length;
         const jitter = (Math.random() - 0.5) * slice * 0.6;
         const target = (360 - pick * slice + jitter + 360) % 360;
-        const turns = rotation - (rotation % 360) + 360 * 6 + target;
         const duration = reduceMotion.matches ? 0 : 4600;
-        rotation = turns;
+        rotation = rotation - (rotation % 360) + 360 * 6 + target;
         wheel.style.transitionDuration = `${duration}ms`;
         wheel.style.transform = `rotate(${rotation}deg)`;
 
         setTimeout(() => {
           spinning = false;
           spinButton.disabled = false;
-          openReveal(menus[pick].text);
+          openReveal(chosen.text);
         }, duration + 150);
       }
 
@@ -161,6 +277,9 @@
       addEventListener("keydown", (event) => {
         if (event.key === "Escape") closeReveal();
       });
+
+      drawWheel();
+      renderEditor();
     </script>
   </body>
 </html>
