@@ -9,3 +9,5 @@
 ## 사진
 
 원본 사진은 `1st Anniversary Photos/`에 보관하고, 웹페이지에서 빠르게 볼 수 있도록 크기를 줄인 JPG 사진은 `assets/photos/`에서 사용합니다.
+
+https://randykwoun.github.io/1st-Anniversary/
