@@ -210,12 +210,6 @@ a:focus-visible {
   line-height: 1;
 }
 
-.hero-note {
-  margin: 15px 0 0;
-  color: #a29d94;
-  font-size: 10px;
-}
-
 .hero-orbit {
   position: absolute;
   z-index: -1;
@@ -974,6 +968,272 @@ body.is-playing .player-toggle .icon-pause {
   box-shadow: 0 0 0 1px #dca9a2;
 }
 
+.menu-page {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-page main {
+  flex: 1;
+}
+
+.menu-intro {
+  min-height: 0;
+  padding: 56px 24px 40px;
+}
+
+.menu-intro h1 {
+  margin-top: 24px;
+  font-size: clamp(42px, 5.5vw, 62px);
+}
+
+.menu-note {
+  margin: 20px 0 0;
+  color: #8d8981;
+  font-family: var(--serif);
+  font-size: 13px;
+}
+
+.roulette {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 0 24px 96px;
+}
+
+.roulette-stage {
+  position: relative;
+  width: min(100%, 400px);
+  aspect-ratio: 1;
+}
+
+.roulette-wheel {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 14px 30px #39312314);
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.12, 0.7, 0.12, 1);
+}
+
+.slice {
+  stroke: #ece3d7;
+  stroke-width: 1;
+}
+
+.slice-0 {
+  fill: #fffefa;
+}
+
+.slice-1 {
+  fill: #f8e7e2;
+}
+
+.wheel-rim {
+  fill: none;
+  stroke: #e3d6c6;
+  stroke-width: 3;
+}
+
+.slice-label {
+  fill: var(--ink);
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.roulette-pointer {
+  position: absolute;
+  z-index: 1;
+  top: -6px;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-top: 26px solid var(--accent-dark);
+  border-right: 14px solid transparent;
+  border-left: 14px solid transparent;
+  filter: drop-shadow(0 3px 4px #3931232e);
+  transform: translateX(-50%);
+}
+
+.roulette-spin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 92px;
+  height: 92px;
+  border: 5px solid #fffefa;
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: 0 0 0 1px #e3d6c6, 0 10px 24px #39312326;
+  color: #fffdf9;
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.roulette-spin:hover:not(:disabled) {
+  background: var(--accent-dark);
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.roulette-spin:disabled {
+  cursor: default;
+}
+
+.roulette-spin:focus-visible,
+.reveal button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.roulette-hint {
+  margin: 26px 0 0;
+  color: #aaa399;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.reveal {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: #faf8f3d9;
+  backdrop-filter: blur(6px);
+}
+
+.reveal[hidden] {
+  display: none;
+}
+
+.reveal-card {
+  position: relative;
+  display: flex;
+  width: min(100%, 460px);
+  align-items: center;
+  flex-direction: column;
+  padding: 44px 32px 34px;
+  border: 1px solid #ead3ce;
+  background: #fffefa;
+  box-shadow: 0 30px 80px #3931232b;
+  text-align: center;
+}
+
+.reveal.is-open .reveal-card {
+  animation: reveal-pop 650ms cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.reveal-kicker {
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--serif);
+  font-size: clamp(44px, 12vw, 60px);
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  line-height: 1.1;
+}
+
+.reveal.is-open .reveal-kicker {
+  animation: reveal-bounce 700ms 120ms cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+
+.reveal-menu {
+  margin: 18px 0 0;
+  font-family: var(--serif);
+  font-size: clamp(20px, 5.5vw, 25px);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+
+.reveal.is-open .reveal-menu {
+  animation: reveal-rise 500ms 320ms ease-out both;
+}
+
+.reveal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.reveal-actions .primary-link,
+.reveal-actions .secondary-link {
+  min-width: 180px;
+  margin: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.reveal-actions .secondary-link .link-arrow {
+  color: var(--accent);
+}
+
+.reveal-confetti {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  pointer-events: none;
+}
+
+.reveal-confetti i {
+  position: absolute;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  opacity: 0;
+}
+
+.reveal.is-open .reveal-confetti i {
+  animation: confetti 1300ms var(--d) cubic-bezier(0.15, 0.8, 0.3, 1) both;
+}
+
+@keyframes reveal-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes reveal-bounce {
+  from {
+    opacity: 0;
+    transform: scale(0.3) rotate(-8deg);
+  }
+}
+
+@keyframes reveal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes confetti {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(var(--x), calc(var(--y) + 80px)) rotate(var(--r));
+  }
+}
+
 .timeline-footer {
   width: min(100% - 88px, 1320px);
   min-height: 72px;
@@ -1130,5 +1390,6 @@ body.is-playing .player-toggle .icon-pause {
   *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
 }

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#faf8f3">
+    <meta name="description" content="오늘 뭐 먹을지 고민될 때 돌려 보는 메뉴 룰렛.">
+    <title>오늘의 메뉴 추천</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="menu-page">
+    <header class="site-header">
+      <a class="wordmark" href="index.html" aria-label="홈">H <span>&</span> N</a>
+      <a class="header-link" href="index.html"><span aria-hidden="true">←</span> 처음으로</a>
+    </header>
+
+    <main>
+      <section class="timeline-intro menu-intro" aria-labelledby="menu-title">
+        <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> WHAT TO EAT</p>
+        <h1 id="menu-title">오늘의<br><span>메뉴 추천</span></h1>
+        <p class="menu-note">또 말차마시고 끝내지 말고! 밥먹어 밥!!!</p>
+      </section>
+
+      <section class="roulette" aria-label="메뉴 룰렛">
+        <div class="roulette-stage">
+          <span class="roulette-pointer" aria-hidden="true"></span>
+          <svg class="roulette-wheel" viewBox="-160 -160 320 320" aria-hidden="true" data-wheel></svg>
+          <button class="roulette-spin" type="button" data-spin>돌려!</button>
+        </div>
+        <p class="roulette-hint">가운데 버튼을 눌러봐</p>
+      </section>
+    </main>
+
+    <footer class="timeline-footer">
+      <a class="wordmark" href="index.html">H <span>&</span> N</a>
+    </footer>
+
+    <div class="reveal" role="dialog" aria-modal="true" aria-labelledby="reveal-title" hidden data-reveal>
+      <div class="reveal-confetti" aria-hidden="true" data-confetti></div>
+      <div class="reveal-card">
+        <p class="reveal-kicker" id="reveal-title">따단!</p>
+        <p class="reveal-menu" data-result></p>
+        <div class="reveal-actions">
+          <button class="primary-link" type="button" data-again>
+            <span>한 번 더 돌리기</span>
+            <span class="link-arrow" aria-hidden="true">↻</span>
+          </button>
+          <button class="secondary-link" type="button" data-close>
+            <span>좋아, 이걸로!</span>
+            <span class="link-arrow" aria-hidden="true">♥</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const menus = [
+        { label: "화덕피자", text: "Ocean View에서 화덕피자!" },
+        { label: "마라탕", text: "마라탕 배달 시켜먹기~" },
+        { label: "불고기", text: "K-Central가서 불고기 어때?" },
+        { label: "포케볼", text: "오늘은 Makai에서 포케볼이 딱이다! (ㅇㅈㅇㅈ)" },
+        { label: "Crave", text: "건강하게 이번엔 Crave가자!" },
+        { label: "라면", text: "귀찮은데…오늘은 집에서 라면이닷!" },
+        { label: "Soba", text: "찾아보니 Noodles의 Soba Shrimp가 그렇게 맛있대!" },
+        { label: "태국음식", text: "태국음식은 어떤가용 울 공쥬님? ㅎㅎ" },
+      ];
+
+      const wheel = document.querySelector("[data-wheel]");
+      const spinButton = document.querySelector("[data-spin]");
+      const reveal = document.querySelector("[data-reveal]");
+      const result = document.querySelector("[data-result]");
+      const confetti = document.querySelector("[data-confetti]");
+      const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
+      // Draw the wheel: slice i is centred at i * slice degrees, clockwise from the top.
+      const slice = 360 / menus.length;
+      const radius = 150;
+      const point = (deg, r) => {
+        const rad = (deg - 90) * (Math.PI / 180);
+        return `${(r * Math.cos(rad)).toFixed(2)} ${(r * Math.sin(rad)).toFixed(2)}`;
+      };
+      wheel.innerHTML = menus.map((menu, i) => {
+        const start = i * slice - slice / 2;
+        const end = start + slice;
+        return `
+          <path class="slice slice-${i % 2}" d="M0 0 L${point(start, radius)} A${radius} ${radius} 0 0 1 ${point(end, radius)} Z"/>
+          <text class="slice-label" transform="rotate(${i * slice}) translate(0 -104)">${menu.label}</text>`;
+      }).join("") + `<circle class="wheel-rim" r="${radius}"/>`;
+
+      let rotation = 0;
+      let last = -1;
+      let spinning = false;
+
+      function spin() {
+        if (spinning) return;
+        spinning = true;
+        spinButton.disabled = true;
+        closeReveal(false);
+
+        // Pick a different menu from last time so it never feels stuck.
+        let pick;
+        do pick = Math.floor(Math.random() * menus.length);
+        while (pick === last && menus.length > 1);
+        last = pick;
+
+        const jitter = (Math.random() - 0.5) * slice * 0.6;
+        const target = (360 - pick * slice + jitter + 360) % 360;
+        const turns = rotation - (rotation % 360) + 360 * 6 + target;
+        const duration = reduceMotion.matches ? 0 : 4600;
+        rotation = turns;
+        wheel.style.transitionDuration = `${duration}ms`;
+        wheel.style.transform = `rotate(${rotation}deg)`;
+
+        setTimeout(() => {
+          spinning = false;
+          spinButton.disabled = false;
+          openReveal(menus[pick].text);
+        }, duration + 150);
+      }
+
+      function burst() {
+        const colors = ["#c87572", "#d3b778", "#e8b4ab", "#a95251", "#efd9a6"];
+        confetti.innerHTML = Array.from({ length: 36 }, (_, i) => {
+          const angle = (i / 36) * Math.PI * 2 + Math.random() * 0.3;
+          const distance = 140 + Math.random() * 160;
+          const style = [
+            `--x:${(Math.cos(angle) * distance).toFixed(0)}px`,
+            `--y:${(Math.sin(angle) * distance).toFixed(0)}px`,
+            `--r:${Math.floor(Math.random() * 540)}deg`,
+            `--d:${Math.floor(Math.random() * 120)}ms`,
+            `background:${colors[i % colors.length]}`,
+          ].join(";");
+          return `<i style="${style}"></i>`;
+        }).join("");
+      }
+
+      function openReveal(text) {
+        result.textContent = text;
+        burst();
+        reveal.hidden = false;
+        // Restart the entrance animation each time.
+        reveal.classList.remove("is-open");
+        void reveal.offsetWidth;
+        reveal.classList.add("is-open");
+        reveal.querySelector("[data-close]").focus();
+      }
+
+      function closeReveal(restoreFocus = true) {
+        if (reveal.hidden) return;
+        reveal.hidden = true;
+        reveal.classList.remove("is-open");
+        if (restoreFocus) spinButton.focus();
+      }
+
+      spinButton.addEventListener("click", spin);
+      document.querySelector("[data-again]").addEventListener("click", spin);
+      document.querySelector("[data-close]").addEventListener("click", () => closeReveal());
+      reveal.addEventListener("click", (event) => {
+        if (event.target === reveal) closeReveal();
+      });
+      addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeReveal();
+      });
+    </script>
+  </body>
+</html>
