@@ -158,25 +158,8 @@ a:focus-visible {
   color: var(--accent);
 }
 
-.hero-intro {
-  margin: 20px 0 0;
-  color: #75736c;
-  font-family: var(--serif);
-  font-size: 15px;
-  letter-spacing: 0.015em;
-}
-
-.hero-dates {
-  margin: 23px 0 30px;
-  color: #77756e;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-}
-
-.hero-dates span {
-  padding: 0 9px;
-  color: #b6aea2;
+.home-hero h1 {
+  margin-bottom: 40px;
 }
 
 .primary-link {

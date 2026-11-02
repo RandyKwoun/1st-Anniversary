@@ -19,7 +19,6 @@
         <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> VOICE MAILBOX</p>
         <h1 id="voicemail-title">우리의<br><span>음성함</span></h1>
         <p class="timeline-subtitle">보고 싶을 때, 힘들 때, 언제든 꺼내 들어줘.</p>
-        <p class="timeline-range" data-summary>14개의 목소리</p>
         <a class="back-link" href="index.html"><span aria-hidden="true">←</span> 홈으로 돌아가기</a>
       </section>
 
@@ -129,10 +128,6 @@
       };
 
       // Build the cards.
-      const totalSeconds = voices.reduce((sum, voice) => sum + voice.duration, 0);
-      document.querySelector("[data-summary]").textContent =
-        `${voices.length}개의 목소리 · ${Math.floor(totalSeconds / 60)}분 ${Math.round(totalSeconds % 60)}초`;
-
       const bars = (peaks) => peaks.map((h) => `<i style="--h:${h}"></i>`).join("");
       let number = 0;
       document.querySelector("[data-groups]").innerHTML = groups.map((group) => `
