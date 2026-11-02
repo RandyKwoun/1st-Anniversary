@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#faf8f3">
-    <meta name="description" content="우리의 목소리를 모아 두는 음성함.">
+    <meta name="description" content="보고 싶을 때, 힘들 때 꺼내 듣는 열네 개의 목소리.">
     <title>우리의 음성함 — 우리의 첫 번째 페이지</title>
     <link rel="stylesheet" href="styles.css">
   </head>
@@ -15,18 +15,312 @@
     </header>
 
     <main>
-      <section class="timeline-intro" aria-labelledby="voicemail-title">
+      <section class="timeline-intro voicemail-intro" aria-labelledby="voicemail-title">
         <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> VOICE MAILBOX</p>
         <h1 id="voicemail-title">우리의<br><span>음성함</span></h1>
+        <p class="timeline-subtitle">보고 싶을 때, 힘들 때, 언제든 꺼내 들어줘.</p>
+        <p class="timeline-range" data-summary>14개의 목소리</p>
         <a class="back-link" href="index.html"><span aria-hidden="true">←</span> 홈으로 돌아가기</a>
       </section>
 
-      <div class="voicemail-empty">아직 비어 있어요</div>
+      <div class="voice-groups" data-groups></div>
     </main>
 
     <footer class="timeline-footer">
       <a class="wordmark" href="index.html">H <span>&</span> N</a>
       <span>우리의 첫 번째 페이지 <span aria-hidden="true">♥</span></span>
     </footer>
+
+    <section class="voice-player" aria-label="음성 플레이어">
+      <div class="player-info">
+        <span class="player-number" data-player-number>01</span>
+        <div>
+          <p class="player-state" data-player-state>들을 음성을 골라줘</p>
+          <p class="player-title" data-player-title>1주년</p>
+        </div>
+      </div>
+
+      <div class="player-controls">
+        <button class="player-button" type="button" data-action="prev" aria-label="이전 음성">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zM19 5.5v13L9.5 12z"/></svg>
+        </button>
+        <button class="player-button" type="button" data-action="back" aria-label="10초 뒤로">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="ring" d="M12 4.5a8 8 0 1 1-7.6 5.5"/><path d="M12 1.5v6L7.5 4.5z"/><text x="12" y="15.6">10</text></svg>
+        </button>
+        <button class="player-button player-toggle" type="button" data-action="toggle" aria-label="재생">
+          <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.5v13l10.5-6.5z"/></svg>
+          <svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+        </button>
+        <button class="player-button" type="button" data-action="forward" aria-label="10초 앞으로">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="ring" d="M12 4.5a8 8 0 1 0 7.6 5.5"/><path d="M12 1.5v6l4.5-3z"/><text x="12" y="15.6">10</text></svg>
+        </button>
+        <button class="player-button" type="button" data-action="next" aria-label="다음 음성">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h2v14h-2zM5 5.5v13L14.5 12z"/></svg>
+        </button>
+      </div>
+
+      <div class="player-seek">
+        <span class="player-time" data-time-current>0:00</span>
+        <input class="player-range" type="range" min="0" max="39.21" step="0.01" value="0" aria-label="재생 위치" data-range>
+        <span class="player-time" data-time-total>0:39</span>
+      </div>
+    </section>
+
+    <audio preload="none" data-audio></audio>
+
+    <script>
+      const groups = [
+        {
+          label: "SPECIAL DAYS",
+          title: "특별한 날",
+          voices: [
+            { file: "01-anniversary", title: "1주년", duration: 39.21, peaks: [0.12,0.3,0.55,0.67,1.0,0.12,0.76,0.73,0.57,0.26,0.6,0.61,0.64,0.6,0.52,0.43,0.68,0.33,0.52,0.79,0.72,0.52,0.67,0.66,0.57,0.63,0.4,0.66,0.42,0.55,0.24,0.69,0.65,0.12,0.73,0.62,0.59,0.12,0.64,0.61,0.38,0.51,0.45,0.61,0.37,0.57,0.66,0.12] },
+            { file: "02-birthday", title: "생일", duration: 48.19, peaks: [0.28,0.74,0.87,0.85,0.73,0.79,0.36,0.68,0.66,0.49,0.54,0.73,0.83,0.86,0.25,0.71,0.4,0.54,0.63,0.59,0.58,0.73,0.69,0.9,0.89,0.55,0.24,0.59,0.78,0.89,1.0,0.8,0.82,0.12,0.83,0.83,0.72,0.71,0.7,0.69,0.76,0.86,0.99,0.71,0.48,0.89,0.69,0.12] },
+          ],
+        },
+        {
+          label: "EVERYDAY",
+          title: "평범한 하루 속에서",
+          voices: [
+            { file: "03-morning", title: "아침에 일어났을 때", duration: 30.85, peaks: [0.12,0.12,0.52,1.0,0.65,0.58,0.66,0.92,0.65,0.58,0.74,0.68,0.75,0.62,0.59,0.66,0.59,0.53,0.57,0.55,0.4,0.57,0.65,0.64,0.21,0.5,0.77,0.44,0.47,0.63,0.9,0.57,0.67,0.9,0.18,0.42,0.77,0.62,0.57,0.65,0.4,0.46,0.84,0.8,0.69,0.6,0.54,0.32] },
+            { file: "04-rainy-day", title: "비 오는 날", duration: 32.4, peaks: [0.12,0.27,0.79,0.65,0.67,0.84,0.56,0.95,0.74,0.12,0.78,0.59,0.75,0.76,0.8,0.12,1.0,0.88,0.53,0.25,0.55,0.44,0.41,0.63,0.12,0.55,0.48,0.57,0.44,0.58,0.72,0.32,0.6,0.61,0.62,0.4,0.12,0.78,0.88,0.59,0.71,0.7,0.81,0.71,0.36,0.48,0.67,0.12] },
+            { file: "05-exam", title: "시험이 있을 때", duration: 33.11, peaks: [0.12,0.73,1.0,0.69,0.66,0.97,0.83,0.67,1.0,0.36,0.19,0.78,0.75,0.36,0.7,0.62,0.71,0.61,0.76,0.62,0.31,0.55,0.77,0.77,0.66,0.12,0.68,0.84,0.76,0.65,0.76,0.59,0.12,0.63,0.59,0.59,0.66,0.59,0.75,0.72,0.63,0.62,0.21,0.43,0.58,0.78,0.53,0.12] },
+            { file: "06-sleepless", title: "잠이 안 올 때", duration: 25.17, peaks: [0.12,0.12,0.8,0.89,0.9,0.95,0.97,0.22,0.83,0.78,0.83,0.56,0.12,0.78,0.42,0.82,0.14,0.8,0.34,0.93,0.75,0.12,0.68,0.75,0.73,0.61,0.77,0.12,0.74,0.8,0.7,0.6,0.76,0.58,0.68,0.27,0.38,0.12,0.96,1.0,0.9,0.27,0.12,0.12,0.52,0.85,0.23,0.12] },
+          ],
+        },
+        {
+          label: "HARD DAYS",
+          title: "마음이 지칠 때",
+          voices: [
+            { file: "07-hard-day", title: "오늘 너무 힘든 하루였을 때", duration: 26.88, peaks: [0.12,0.12,0.12,0.65,0.81,0.7,1.0,0.46,0.12,0.62,0.63,0.72,0.62,0.61,0.64,0.58,0.12,0.61,0.58,0.22,0.54,0.55,0.48,0.58,0.53,0.44,0.35,0.62,0.5,0.44,0.48,0.29,0.39,0.12,0.54,0.55,0.66,0.6,0.12,0.44,0.48,0.29,0.37,0.53,0.12,0.52,0.12,0.12] },
+            { file: "08-people", title: "인간관계 때문에 힘들 때", duration: 50.64, peaks: [0.12,0.44,0.75,0.66,0.74,0.27,0.65,0.67,0.55,0.55,0.8,0.52,0.66,0.8,0.32,0.73,0.49,0.6,0.59,0.81,0.74,0.29,0.57,0.64,0.58,0.31,0.8,0.53,0.48,0.67,0.55,0.45,0.63,0.6,0.64,0.55,0.59,0.67,0.64,1.0,0.84,0.74,0.53,0.71,0.38,0.51,0.48,0.12] },
+            { file: "09-sick", title: "아플 때", duration: 25.36, peaks: [0.12,0.12,0.58,0.63,0.86,0.53,0.72,0.59,0.12,0.63,0.67,0.81,0.41,0.56,0.8,0.52,0.52,0.99,0.71,0.68,0.59,0.86,0.37,0.52,0.96,0.62,0.75,0.55,0.37,0.12,0.65,0.62,0.64,0.82,0.74,1.0,0.71,0.12,0.49,0.53,0.58,1.0,0.85,0.49,0.12,0.5,0.4,0.12] },
+            { file: "10-lonely", title: "외로울 때", duration: 40.3, peaks: [0.12,0.78,0.78,0.76,0.91,0.74,0.4,0.52,0.85,0.75,0.78,0.62,0.39,0.85,0.5,0.59,0.67,0.67,0.63,0.74,1.0,0.67,0.57,0.83,0.68,0.13,0.64,0.77,0.61,0.73,0.12,0.96,0.75,0.12,0.8,0.8,0.72,0.51,0.67,0.62,0.69,0.46,0.75,0.53,0.67,0.56,0.68,0.18] },
+          ],
+        },
+        {
+          label: "MISSING ME",
+          title: "내가 그리울 때",
+          voices: [
+            { file: "11-miss-me", title: "해뚱이 보고 싶을 때!", duration: 22.14, peaks: [0.12,0.12,0.12,0.78,0.27,0.76,0.88,0.83,0.91,0.7,0.51,0.12,0.12,0.67,0.67,0.59,0.79,0.61,0.43,0.53,0.61,0.4,0.57,0.12,0.12,1.0,0.92,0.65,0.77,0.62,0.12,0.19,0.74,0.69,0.59,0.69,0.64,0.74,0.47,0.12,0.39,0.72,0.51,0.64,0.21,0.46,0.27,0.12] },
+            { file: "12-no-contact", title: "나랑 연락이 안 될 때", duration: 26.99, peaks: [0.12,0.12,0.46,0.66,0.81,0.67,1.0,0.76,0.8,0.49,0.5,0.65,0.96,0.67,0.74,0.71,0.32,0.52,0.71,0.63,0.7,0.65,0.65,0.14,0.68,0.7,0.39,0.4,0.8,0.76,0.74,0.73,0.48,0.12,0.97,0.55,0.47,0.55,0.84,0.65,0.69,0.69,0.36,0.7,0.38,0.61,0.32,0.12] },
+            { file: "13-upset", title: "나한테 서운할 때", duration: 26.81, peaks: [0.12,0.12,0.45,0.42,0.62,0.37,0.35,0.5,0.55,0.27,0.12,1.0,0.4,0.37,0.41,0.28,0.56,0.38,0.52,0.19,0.44,0.5,0.35,0.6,0.54,0.39,0.12,0.12,0.48,0.45,0.39,0.33,0.52,0.12,0.52,0.41,0.37,0.45,0.35,0.43,0.37,0.12,0.32,0.4,0.45,0.49,0.17,0.12] },
+            { file: "14-long-days", title: "남은 날이 너무 길게 느껴질 때", duration: 17.77, peaks: [0.12,0.12,0.12,0.8,0.81,1.0,0.78,0.39,0.69,0.78,0.59,0.81,0.8,0.77,0.75,0.3,0.69,0.84,0.6,0.12,0.12,0.83,0.75,0.7,0.12,0.47,0.91,0.88,0.21,0.12,0.6,0.64,0.61,0.62,0.35,0.66,0.8,0.22,0.12,0.12,0.36,0.73,0.6,0.29,0.41,0.63,0.12,0.12] },
+          ],
+        },
+      ];
+
+      const voices = groups.flatMap((group) => group.voices);
+      const audio = document.querySelector("[data-audio]");
+      const range = document.querySelector("[data-range]");
+      const toggleButton = document.querySelector("[data-action='toggle']");
+      const ui = {
+        number: document.querySelector("[data-player-number]"),
+        state: document.querySelector("[data-player-state]"),
+        title: document.querySelector("[data-player-title]"),
+        current: document.querySelector("[data-time-current]"),
+        total: document.querySelector("[data-time-total]"),
+      };
+
+      const pad = (n) => String(n).padStart(2, "0");
+      const formatTime = (seconds) => {
+        const s = Math.max(0, Math.floor(seconds));
+        return `${Math.floor(s / 60)}:${pad(s % 60)}`;
+      };
+
+      // Build the cards.
+      const totalSeconds = voices.reduce((sum, voice) => sum + voice.duration, 0);
+      document.querySelector("[data-summary]").textContent =
+        `${voices.length}개의 목소리 · ${Math.floor(totalSeconds / 60)}분 ${Math.round(totalSeconds % 60)}초`;
+
+      const bars = (peaks) => peaks.map((h) => `<i style="--h:${h}"></i>`).join("");
+      let number = 0;
+      document.querySelector("[data-groups]").innerHTML = groups.map((group) => `
+        <section class="voice-group">
+          <header class="voice-group-head">
+            <p>${group.label}</p>
+            <h2>${group.title}</h2>
+          </header>
+          <ol class="voice-list">
+            ${group.voices.map((voice) => {
+              const index = number++;
+              return `
+                <li>
+                  <button class="voice-card" type="button" data-index="${index}" aria-label="${voice.title} 듣기, ${formatTime(voice.duration)}">
+                    <span class="voice-card-top">
+                      <span class="voice-number">${pad(index + 1)}</span>
+                      <span class="voice-duration">${formatTime(voice.duration)}</span>
+                    </span>
+                    <span class="voice-title">${voice.title}</span>
+                    <span class="voice-bottom">
+                      <span class="voice-play" aria-hidden="true">
+                        <svg class="icon-play" viewBox="0 0 24 24"><path d="M8.5 5.5v13l10.5-6.5z"/></svg>
+                        <svg class="icon-pause" viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+                      </span>
+                      <span class="voice-wave" aria-hidden="true">
+                        <span class="wave-bars">${bars(voice.peaks)}</span>
+                        <span class="wave-bars wave-played">${bars(voice.peaks)}</span>
+                      </span>
+                    </span>
+                  </button>
+                </li>`;
+            }).join("")}
+          </ol>
+        </section>`).join("");
+
+      const cards = [...document.querySelectorAll(".voice-card")];
+
+      // Playback state.
+      let index = 0;
+      let loaded = false;
+      let scrubbing = false;
+      let frame = 0;
+
+      const play = () => audio.play().catch(renderPlaying);
+      const duration = () => (Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : voices[index].duration);
+
+      function renderProgress() {
+        const time = scrubbing ? Number(range.value) : audio.currentTime;
+        const progress = Math.min(1, time / duration());
+        if (!scrubbing) range.value = time;
+        range.style.setProperty("--p", progress);
+        cards[index].style.setProperty("--p", progress);
+        ui.current.textContent = formatTime(time);
+      }
+
+      function renderTrack() {
+        const voice = voices[index];
+        ui.number.textContent = pad(index + 1);
+        ui.title.textContent = voice.title;
+        ui.total.textContent = formatTime(voice.duration);
+        range.max = voice.duration;
+        cards.forEach((card, i) => {
+          card.classList.toggle("is-current", loaded && i === index);
+          if (i !== index) card.style.setProperty("--p", 0);
+        });
+        renderProgress();
+      }
+
+      function renderPlaying() {
+        const playing = !audio.paused;
+        document.body.classList.toggle("is-playing", playing);
+        cards.forEach((card, i) => card.classList.toggle("is-playing", playing && i === index));
+        toggleButton.setAttribute("aria-label", playing ? "일시정지" : "재생");
+        ui.state.textContent = playing ? "지금 듣는 중" : audio.ended ? "다 들었어" : loaded ? "잠시 멈춤" : "들을 음성을 골라줘";
+      }
+
+      function select(i, autoplay) {
+        index = (i + voices.length) % voices.length;
+        audio.src = `assets/voice/${voices[index].file}.m4a`;
+        loaded = true;
+        renderTrack();
+        renderPlaying();
+        if (autoplay) play();
+        if ("mediaSession" in navigator) {
+          navigator.mediaSession.metadata = new MediaMetadata({ title: voices[index].title, artist: "해뚱이", album: "우리의 음성함" });
+        }
+      }
+
+      function toggle() {
+        if (!loaded) return select(index, true);
+        audio.paused ? play() : audio.pause();
+      }
+
+      function seek(seconds) {
+        if (!loaded) select(index, false);
+        audio.currentTime = Math.min(Math.max(0, seconds), duration());
+        renderProgress();
+      }
+
+      function previous() {
+        // Like most players: restart the current voice first, then go back.
+        if (loaded && audio.currentTime > 3) return seek(0);
+        select(index - 1, loaded && !audio.paused);
+      }
+
+      const next = () => select(index + 1, loaded && !audio.paused);
+
+      cards.forEach((card, i) => {
+        card.addEventListener("click", () => (i === index && loaded ? toggle() : select(i, true)));
+      });
+
+      const actions = {
+        toggle,
+        prev: previous,
+        next,
+        back: () => seek(audio.currentTime - 10),
+        forward: () => seek(audio.currentTime + 10),
+      };
+      document.querySelectorAll("[data-action]").forEach((button) => {
+        button.addEventListener("click", () => actions[button.dataset.action]());
+      });
+
+      range.addEventListener("pointerdown", () => (scrubbing = true));
+      range.addEventListener("input", () => {
+        if (!loaded) select(index, false);
+        audio.currentTime = Number(range.value);
+        renderProgress();
+      });
+      range.addEventListener("change", () => {
+        scrubbing = false;
+        renderProgress();
+      });
+      addEventListener("pointerup", () => (scrubbing = false));
+
+      function tick() {
+        renderProgress();
+        frame = requestAnimationFrame(tick);
+      }
+
+      audio.addEventListener("play", () => {
+        renderPlaying();
+        cancelAnimationFrame(frame);
+        tick();
+      });
+      audio.addEventListener("pause", () => {
+        cancelAnimationFrame(frame);
+        renderPlaying();
+        renderProgress();
+      });
+      audio.addEventListener("ended", renderPlaying);
+      audio.addEventListener("loadedmetadata", () => {
+        range.max = duration();
+        renderProgress();
+      });
+
+      // Space toggles playback; arrow keys skip 10 seconds (unless a control has focus).
+      addEventListener("keydown", (event) => {
+        if (event.target.closest("input, button, a") || event.metaKey || event.ctrlKey || event.altKey) return;
+        if (event.code === "Space") {
+          event.preventDefault();
+          toggle();
+        } else if (event.key === "ArrowLeft") {
+          actions.back();
+        } else if (event.key === "ArrowRight") {
+          actions.forward();
+        }
+      });
+
+      // Lock-screen and headphone controls on phones.
+      if ("mediaSession" in navigator) {
+        const handlers = {
+          play,
+          pause: () => audio.pause(),
+          previoustrack: previous,
+          nexttrack: next,
+          seekbackward: actions.back,
+          seekforward: actions.forward,
+          seekto: (details) => seek(details.seekTime),
+        };
+        for (const [name, handler] of Object.entries(handlers)) {
+          try {
+            navigator.mediaSession.setActionHandler(name, handler);
+          } catch {}
+        }
+      }
+
+      renderTrack();
+      renderPlaying();
+    </script>
   </body>
 </html>
