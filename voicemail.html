@@ -64,6 +64,27 @@
       </div>
     </section>
 
+    <div class="reveal" role="dialog" aria-modal="true" aria-labelledby="gate-text" hidden data-gate>
+      <div class="reveal-card">
+        <p class="reveal-note" data-gate-note></p>
+        <p class="reveal-text" id="gate-text" data-gate-text></p>
+        <div class="reveal-actions">
+          <button class="primary-link" type="button" data-gate-ok>
+            <span>알겠어!</span>
+            <span class="link-arrow" aria-hidden="true">♥</span>
+          </button>
+          <button class="primary-link" type="button" data-gate-yes>
+            <span>예</span>
+            <span class="link-arrow" aria-hidden="true">♥</span>
+          </button>
+          <button class="secondary-link" type="button" data-gate-no>
+            <span>아니오</span>
+            <span class="link-arrow" aria-hidden="true">←</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <audio preload="none" data-audio></audio>
 
     <script>
@@ -72,8 +93,18 @@
           label: "SPECIAL DAYS",
           title: "특별한 날",
           voices: [
-            { file: "01-anniversary", title: "1주년", duration: 39.21, peaks: [0.12,0.3,0.55,0.67,1.0,0.12,0.76,0.73,0.57,0.26,0.6,0.61,0.64,0.6,0.52,0.43,0.68,0.33,0.52,0.79,0.72,0.52,0.67,0.66,0.57,0.63,0.4,0.66,0.42,0.55,0.24,0.69,0.65,0.12,0.73,0.62,0.59,0.12,0.64,0.61,0.38,0.51,0.45,0.61,0.37,0.57,0.66,0.12] },
-            { file: "02-birthday", title: "생일", duration: 48.19, peaks: [0.28,0.74,0.87,0.85,0.73,0.79,0.36,0.68,0.66,0.49,0.54,0.73,0.83,0.86,0.25,0.71,0.4,0.54,0.63,0.59,0.58,0.73,0.69,0.9,0.89,0.55,0.24,0.59,0.78,0.89,1.0,0.8,0.82,0.12,0.83,0.83,0.72,0.71,0.7,0.69,0.76,0.86,0.99,0.71,0.48,0.89,0.69,0.12] },
+            {
+              file: "01-anniversary",
+              title: "1주년",
+              // 2026-11-15 00:00 in San Diego (PST, UTC-8): won't play before then.
+              lock: { opensAt: Date.parse("2026-11-15T00:00:00-08:00"), badge: "11.15 오픈", mode: "wait" },
+              duration: 39.21, peaks: [0.12,0.3,0.55,0.67,1.0,0.12,0.76,0.73,0.57,0.26,0.6,0.61,0.64,0.6,0.52,0.43,0.68,0.33,0.52,0.79,0.72,0.52,0.67,0.66,0.57,0.63,0.4,0.66,0.42,0.55,0.24,0.69,0.65,0.12,0.73,0.62,0.59,0.12,0.64,0.61,0.38,0.51,0.45,0.61,0.37,0.57,0.66,0.12] },
+            {
+              file: "02-birthday",
+              title: "생일",
+              // 2027-09-15 00:00 in Korea (KST, UTC+9): before then, asks first and plays once on "예".
+              lock: { opensAt: Date.parse("2027-09-15T00:00:00+09:00"), badge: "9.15 오픈", mode: "ask" },
+              duration: 48.19, peaks: [0.28,0.74,0.87,0.85,0.73,0.79,0.36,0.68,0.66,0.49,0.54,0.73,0.83,0.86,0.25,0.71,0.4,0.54,0.63,0.59,0.58,0.73,0.69,0.9,0.89,0.55,0.24,0.59,0.78,0.89,1.0,0.8,0.82,0.12,0.83,0.83,0.72,0.71,0.7,0.69,0.76,0.86,0.99,0.71,0.48,0.89,0.69,0.12] },
           ],
         },
         {
@@ -144,12 +175,14 @@
                     <span class="voice-card-top">
                       <span class="voice-number">${pad(index + 1)}</span>
                       <span class="voice-duration">${formatTime(voice.duration)}</span>
+                      ${voice.lock ? `<span class="voice-lock">${voice.lock.badge}</span>` : ""}
                     </span>
                     <span class="voice-title">${voice.title}</span>
                     <span class="voice-bottom">
                       <span class="voice-play" aria-hidden="true">
                         <svg class="icon-play" viewBox="0 0 24 24"><path d="M8.5 5.5v13l10.5-6.5z"/></svg>
                         <svg class="icon-pause" viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+                        <svg class="icon-lock" viewBox="0 0 24 24"><path d="M7 10V7.5a5 5 0 0 1 10 0V10h1.5v11h-13V10zm2 0h6V7.5a3 3 0 0 0-6 0z"/></svg>
                       </span>
                       <span class="voice-wave" aria-hidden="true">
                         <span class="wave-bars">${bars(voice.peaks)}</span>
@@ -169,6 +202,66 @@
       let loaded = false;
       let scrubbing = false;
       let frame = 0;
+
+      // Date locks. Checked against the viewer's clock each time a voice is picked.
+      const gate = document.querySelector("[data-gate]");
+      const gateButtons = {
+        ok: gate.querySelector("[data-gate-ok]"),
+        yes: gate.querySelector("[data-gate-yes]"),
+        no: gate.querySelector("[data-gate-no]"),
+      };
+      const gateMessages = {
+        wait: { note: "2026년 11월 15일에 열려", text: "듣고싶은건 알겠지만! 조금만 기다려줘!" },
+        ask: { note: "2027년 9월 15일에 열려", text: "9월 15일이 아닌데도 듣고싶어? ㅎㅎ 귀엽네" },
+      };
+      let onYes = null;
+      let gateReturnFocus = null;
+
+      const isLocked = (i) => Boolean(voices[i].lock && Date.now() < voices[i].lock.opensAt);
+
+      function refreshLocks() {
+        cards.forEach((card, i) => {
+          const locked = isLocked(i);
+          card.classList.toggle("is-locked", locked);
+          card.setAttribute("aria-label", `${voices[i].title} ${locked ? "잠겨 있음" : "듣기"}, ${formatTime(voices[i].duration)}`);
+        });
+      }
+
+      function openGate(mode, yes) {
+        const message = gateMessages[mode];
+        gate.querySelector("[data-gate-note]").textContent = message.note;
+        gate.querySelector("[data-gate-text]").textContent = message.text;
+        gateButtons.ok.hidden = mode !== "wait";
+        gateButtons.yes.hidden = gateButtons.no.hidden = mode !== "ask";
+        onYes = yes;
+        gateReturnFocus = document.activeElement;
+        gate.hidden = false;
+        gate.classList.remove("is-open");
+        void gate.offsetWidth;
+        gate.classList.add("is-open");
+        (mode === "wait" ? gateButtons.ok : gateButtons.yes).focus();
+      }
+
+      function closeGate() {
+        if (gate.hidden) return;
+        gate.hidden = true;
+        gate.classList.remove("is-open");
+        onYes = null;
+        gateReturnFocus?.focus();
+      }
+
+      gateButtons.ok.addEventListener("click", closeGate);
+      gateButtons.no.addEventListener("click", closeGate);
+      gateButtons.yes.addEventListener("click", () => {
+        const yes = onYes;
+        closeGate();
+        yes?.();
+      });
+      gate.addEventListener("click", (event) => {
+        if (event.target === gate) closeGate();
+      });
+      setInterval(refreshLocks, 30000);
+      refreshLocks();
 
       const play = () => audio.play().catch(renderPlaying);
       const duration = () => (Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : voices[index].duration);
@@ -203,8 +296,16 @@
         ui.state.textContent = playing ? "지금 듣는 중" : audio.ended ? "다 들었어" : loaded ? "잠시 멈춤" : "들을 음성을 골라줘";
       }
 
-      function select(i, autoplay) {
-        index = (i + voices.length) % voices.length;
+      // Returns false when a date lock stopped the voice from loading.
+      function select(i, autoplay, granted = false) {
+        const target = (i + voices.length) % voices.length;
+        refreshLocks();
+        if (isLocked(target) && !granted) {
+          const { mode } = voices[target].lock;
+          openGate(mode, mode === "ask" ? () => select(target, true, true) : null);
+          return false;
+        }
+        index = target;
         audio.src = `assets/voice/${voices[index].file}.m4a`;
         loaded = true;
         renderTrack();
@@ -213,6 +314,7 @@
         if ("mediaSession" in navigator) {
           navigator.mediaSession.metadata = new MediaMetadata({ title: voices[index].title, artist: "해뚱이", album: "우리의 음성함" });
         }
+        return true;
       }
 
       function toggle() {
@@ -221,7 +323,7 @@
       }
 
       function seek(seconds) {
-        if (!loaded) select(index, false);
+        if (!loaded && !select(index, false)) return;
         audio.currentTime = Math.min(Math.max(0, seconds), duration());
         renderProgress();
       }
@@ -251,7 +353,10 @@
 
       range.addEventListener("pointerdown", () => (scrubbing = true));
       range.addEventListener("input", () => {
-        if (!loaded) select(index, false);
+        if (!loaded && !select(index, false)) {
+          scrubbing = false;
+          return renderProgress();
+        }
         audio.currentTime = Number(range.value);
         renderProgress();
       });
@@ -276,7 +381,11 @@
         renderPlaying();
         renderProgress();
       });
-      audio.addEventListener("ended", renderPlaying);
+      audio.addEventListener("ended", () => {
+        // An early "예" only covers one listen: playing it again asks again.
+        if (isLocked(index)) loaded = false;
+        renderPlaying();
+      });
       audio.addEventListener("loadedmetadata", () => {
         range.max = duration();
         renderProgress();
@@ -284,6 +393,8 @@
 
       // Space toggles playback; arrow keys skip 10 seconds (unless a control has focus).
       addEventListener("keydown", (event) => {
+        if (event.key === "Escape") return closeGate();
+        if (!gate.hidden) return;
         if (event.target.closest("input, button, a") || event.metaKey || event.ctrlKey || event.altKey) return;
         if (event.code === "Space") {
           event.preventDefault();

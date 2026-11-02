@@ -268,7 +268,6 @@ a:focus-visible {
   letter-spacing: 0.12em;
 }
 
-.home-footer > span:last-child span,
 .timeline-footer > span span {
   padding-left: 5px;
   color: var(--accent);
@@ -689,6 +688,32 @@ a:focus-visible {
 .voice-number {
   color: var(--accent-dark);
   font-weight: 600;
+}
+
+.voice-lock,
+.voice-card.is-locked .voice-duration,
+.icon-lock,
+.voice-card.is-locked .voice-play .icon-play {
+  display: none;
+}
+
+.voice-card.is-locked .voice-lock {
+  display: inline;
+  padding: 3px 8px;
+  border: 1px solid #ead3ce;
+  border-radius: 999px;
+  color: var(--accent-dark);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.voice-card.is-locked .voice-play .icon-lock {
+  display: block;
+  color: #b9b1a5;
+}
+
+.voice-card.is-locked .wave-bars i {
+  background: #ece6dc;
 }
 
 .voice-title {
@@ -1269,16 +1294,9 @@ body.is-playing .player-toggle .icon-pause {
 
 .menu-editor-foot {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: flex-end;
   padding: 10px 20px 18px;
-  color: #a09a90;
   font-size: 10px;
-}
-
-.menu-editor-foot p {
-  margin: 0;
 }
 
 .menu-editor-foot button {
@@ -1325,7 +1343,14 @@ body.is-playing .player-toggle .icon-pause {
   animation: reveal-pop 650ms cubic-bezier(0.2, 1.4, 0.4, 1) both;
 }
 
-.reveal-menu {
+.reveal-note {
+  margin: 0 0 14px;
+  color: #a09a90;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.reveal-text {
   margin: 0;
   font-family: var(--serif);
   font-size: clamp(22px, 6vw, 28px);
@@ -1335,7 +1360,7 @@ body.is-playing .player-toggle .icon-pause {
   word-break: keep-all;
 }
 
-.reveal.is-open .reveal-menu {
+.reveal.is-open .reveal-text {
   animation: reveal-rise 500ms 200ms ease-out both;
 }
 
@@ -1353,6 +1378,10 @@ body.is-playing .player-toggle .icon-pause {
   margin: 0;
   font-family: inherit;
   cursor: pointer;
+}
+
+.reveal-actions [hidden] {
+  display: none;
 }
 
 .reveal-actions .secondary-link .link-arrow {
