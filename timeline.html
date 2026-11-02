@@ -24,8 +24,15 @@
       </section>
 
       <section class="memories" aria-label="우리의 추억 27가지">
-        <p class="timeline-label">ONE YEAR, SO MANY MEMORIES</p>
-        <ol class="timeline">
+        <div class="timeline-head">
+          <p class="timeline-label">ONE YEAR, SO MANY MEMORIES</p>
+          <div class="timeline-controls">
+            <span class="timeline-count" aria-live="polite"><span data-current>01</span> / 27</span>
+            <button class="timeline-button" type="button" data-step="-1" aria-label="이전 추억" disabled>←</button>
+            <button class="timeline-button" type="button" data-step="1" aria-label="다음 추억">→</button>
+          </div>
+        </div>
+        <ol class="timeline" tabindex="0" aria-label="추억 타임라인, 옆으로 넘겨 보세요">
           <li class="timeline-item">
             <article class="memory-card">
               <a class="memory-photo" href="assets/photos/2025-10-30.jpg" target="_blank" rel="noreferrer">
@@ -365,5 +372,40 @@
       <a class="wordmark" href="index.html">H <span>&</span> N</a>
       <span>우리의 첫 번째 페이지 <span aria-hidden="true">♥</span></span>
     </footer>
+
+    <script>
+      const track = document.querySelector(".timeline");
+      const items = track.querySelectorAll(".timeline-item");
+      const buttons = document.querySelectorAll(".timeline-button");
+      const current = document.querySelector("[data-current]");
+      const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
+      const stepWidth = () => items[0].offsetWidth + parseFloat(getComputedStyle(track).columnGap);
+
+      function update() {
+        const index = Math.min(items.length - 1, Math.round(track.scrollLeft / stepWidth()));
+        const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
+        current.textContent = String(atEnd ? items.length : index + 1).padStart(2, "0");
+        buttons[0].disabled = track.scrollLeft <= 2;
+        buttons[1].disabled = atEnd;
+      }
+
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+          track.scrollBy({
+            left: Number(button.dataset.step) * stepWidth(),
+            behavior: reduceMotion.matches ? "auto" : "smooth",
+          });
+        });
+      });
+
+      let frame = 0;
+      track.addEventListener("scroll", () => {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(update);
+      }, { passive: true });
+      addEventListener("resize", update);
+      update();
+    </script>
   </body>
 </html>
