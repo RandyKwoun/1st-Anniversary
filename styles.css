@@ -491,7 +491,73 @@ a:focus-visible {
   min-height: 280px;
   margin-top: 16px;
   border-top: 1px solid #eee9e0;
+  display: grid;
+  place-items: center;
   background: repeating-linear-gradient(to bottom, transparent 0 31px, #f0ebe2 31px 32px);
+}
+
+.letter-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 20px;
+  border: 1px solid var(--line);
+  background: #fffefa;
+  color: #a09a90;
+  font-family: var(--serif);
+  font-size: 13px;
+}
+
+.letter-open svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+.letter-open.is-unlocked {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fffdf9;
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease;
+}
+
+.letter-open.is-unlocked svg {
+  display: none;
+}
+
+.letter-open.is-unlocked:hover {
+  border-color: var(--accent-dark);
+  background: var(--accent-dark);
+}
+
+.letter-open:focus-visible,
+.letter-sheet button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.reveal-card.letter-sheet {
+  display: block;
+  width: min(100%, 580px);
+  max-height: 86svh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  outline: none;
+}
+
+.letter-sheet .reveal-actions {
+  margin-top: 26px;
+}
+
+.letter-text {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 2.1;
+  text-align: left;
+  white-space: pre-line;
+  word-break: keep-all;
 }
 
 .memory-photo {

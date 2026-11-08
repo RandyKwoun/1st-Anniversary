@@ -360,7 +360,12 @@
           <li class="timeline-item timeline-item-letter">
             <article class="memory-card letter-card" aria-label="2026년 11월 15일, 편지가 들어갈 자리">
               <time class="memory-date" datetime="2026-11-15">2026.11.15</time>
-              <div class="letter-paper"></div>
+              <div class="letter-paper">
+                <button class="letter-open" type="button" data-letter-open disabled>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7.5a5 5 0 0 1 10 0V10h1.5v11h-13V10zm2 0h6V7.5a3 3 0 0 0-6 0z"/></svg>
+                  <span data-letter-label>11월 15일에 열려</span>
+                </button>
+              </div>
             </article>
           </li>
         </ol>
@@ -377,6 +382,19 @@
     <footer class="timeline-footer">
       <a class="wordmark" href="index.html">H <span>&</span> N</a>
     </footer>
+
+    <div class="reveal" role="dialog" aria-modal="true" aria-labelledby="letter-title" hidden data-letter>
+      <div class="reveal-card letter-sheet" tabindex="-1" data-letter-sheet>
+        <p class="reveal-note" id="letter-title">2026.11.15</p>
+        <p class="letter-text" data-letter-text></p>
+        <div class="reveal-actions">
+          <button class="secondary-link" type="button" data-letter-close>
+            <span>닫기</span>
+            <span class="link-arrow" aria-hidden="true">♥</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <script>
       const track = document.querySelector(".timeline");
@@ -460,6 +478,57 @@
       }, { passive: true });
       addEventListener("resize", update);
       update();
+
+      // The anniversary letter opens at 2026-11-15 00:00 in San Diego (PST, UTC-8).
+      // It lives in its own file and is only fetched once unlocked.
+      const LETTER_OPENS_AT = Date.parse("2026-11-15T00:00:00-08:00");
+      const letter = document.querySelector("[data-letter]");
+      const letterSheet = document.querySelector("[data-letter-sheet]");
+      const letterText = document.querySelector("[data-letter-text]");
+      const letterOpen = document.querySelector("[data-letter-open]");
+      const letterLabel = document.querySelector("[data-letter-label]");
+
+      function refreshLetterLock() {
+        const locked = Date.now() < LETTER_OPENS_AT;
+        letterOpen.disabled = locked;
+        letterOpen.classList.toggle("is-unlocked", !locked);
+        letterLabel.textContent = locked ? "11월 15일에 열려" : "편지 열기";
+      }
+
+      async function openLetter() {
+        if (Date.now() < LETTER_OPENS_AT) return refreshLetterLock();
+        try {
+          const response = await fetch("assets/letter.txt");
+          if (!response.ok) throw new Error(response.status);
+          letterText.textContent = (await response.text()).trim();
+        } catch {
+          letterText.textContent = "편지를 불러오지 못했어. 새로고침하고 다시 눌러줘!";
+        }
+        letter.hidden = false;
+        letter.classList.remove("is-open");
+        void letter.offsetWidth;
+        letter.classList.add("is-open");
+        letterSheet.scrollTop = 0;
+        letterSheet.focus({ preventScroll: true });
+      }
+
+      function closeLetter() {
+        if (letter.hidden) return;
+        letter.hidden = true;
+        letter.classList.remove("is-open");
+        letterOpen.focus({ preventScroll: true });
+      }
+
+      letterOpen.addEventListener("click", openLetter);
+      document.querySelector("[data-letter-close]").addEventListener("click", closeLetter);
+      letter.addEventListener("click", (event) => {
+        if (event.target === letter) closeLetter();
+      });
+      addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeLetter();
+      });
+      setInterval(refreshLetterLock, 30000);
+      refreshLetterLock();
     </script>
   </body>
 </html>
